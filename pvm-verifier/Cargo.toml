@@ -1,0 +1,40 @@
+[package]
+name = "zknative-pvm-verifier"
+version = "0.1.0"
+edition = "2021"
+description = "Groth16 ZK proof verifier compiled to PolkaVM, callable from Solidity via PVM FFI"
+license = "MIT"
+
+[lib]
+name = "zknative_verifier"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ark-snark = { version = "0.4", default-features = false }
+ark-bn254 = { version = "0.4", default-features = false, features = ["curve"] }
+ark-groth16 = { version = "0.4", default-features = false }
+ark-serialize = { version = "0.4", default-features = false, features = ["derive"] }
+ark-ff = { version = "0.4", default-features = false }
+ark-ec = { version = "0.4", default-features = false }
+ark-std = { version = "0.4", default-features = false }
+hex = { version = "0.4", default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "ark-bn254/std",
+    "ark-groth16/std",
+    "ark-serialize/std",
+    "ark-ff/std",
+    "ark-ec/std",
+    "ark-std/std",
+    "hex/std",
+]
+pvm = []
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
