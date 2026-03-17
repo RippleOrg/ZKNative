@@ -40,15 +40,17 @@ static VOTING_VK: &[u8] = include_bytes!("../keys/voting_vk_placeholder.bin");
 /// # Safety
 /// The host guarantees that the pointed-to memory regions are valid for their
 /// respective sizes.
-pub fn handle_pvm_call(input_ptr: *const u8, input_len: usize, output_ptr: *mut u8) -> usize {
-    let input = unsafe { core::slice::from_raw_parts(input_ptr, input_len) };
+pub unsafe fn handle_pvm_call(
+    input_ptr: *const u8,
+    input_len: usize,
+    output_ptr: *mut u8,
+) -> usize {
+    let input = core::slice::from_raw_parts(input_ptr, input_len);
 
     let result = decode_and_verify(input).unwrap_or(false);
 
     let output = encode_bool(result);
-    unsafe {
-        core::ptr::copy_nonoverlapping(output.as_ptr(), output_ptr, 32);
-    }
+    core::ptr::copy_nonoverlapping(output.as_ptr(), output_ptr, 32);
     32
 }
 
@@ -135,7 +137,10 @@ fn decode_vk(data: &[u8]) -> Result<VerificationKey, VerificationError> {
 
     let mut offset = 32;
 
-    let alpha1 = G1Point { x: read32(data, offset)?, y: read32(data, offset + 32)? };
+    let alpha1 = G1Point {
+        x: read32(data, offset)?,
+        y: read32(data, offset + 32)?,
+    };
     offset += 64;
 
     let beta2 = G2Point {
@@ -158,11 +163,20 @@ fn decode_vk(data: &[u8]) -> Result<VerificationKey, VerificationError> {
 
     let mut ic = Vec::with_capacity(num_ic);
     for _ in 0..num_ic {
-        ic.push(G1Point { x: read32(data, offset)?, y: read32(data, offset + 32)? });
+        ic.push(G1Point {
+            x: read32(data, offset)?,
+            y: read32(data, offset + 32)?,
+        });
         offset += 64;
     }
 
-    Ok(VerificationKey { alpha1, beta2, gamma2, delta2, ic })
+    Ok(VerificationKey {
+        alpha1,
+        beta2,
+        gamma2,
+        delta2,
+        ic,
+    })
 }
 
 // ─── Encoding ─────────────────────────────────────────────────────────────────

@@ -31,8 +31,8 @@ check_tool "snarkjs"  "npm install -g snarkjs"  || true  # optional
 echo ""
 echo "[2/5] Installing Foundry libraries..."
 cd "${REPO_ROOT}/contracts"
-forge install foundry-rs/forge-std --no-commit 2>/dev/null || true
-forge install OpenZeppelin/openzeppelin-contracts --no-commit 2>/dev/null || true
+forge install foundry-rs/forge-std 2>/dev/null || true
+forge install OpenZeppelin/openzeppelin-contracts 2>/dev/null || true
 echo "✅ Foundry libraries installed"
 
 # ─── Build Rust PVM verifier ──────────────────────────────────────────────────
