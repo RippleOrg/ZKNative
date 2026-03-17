@@ -8,7 +8,7 @@
 //! ```
 //!
 //! ABI layout (all values big-endian 32-byte words):
-//! ```
+//! ```text
 //! [0x000] proof.a[0]                          (G1 x)
 //! [0x020] proof.a[1]                          (G1 y)
 //! [0x040] proof.b[0][0]                       (G2 x.c0)
@@ -112,7 +112,7 @@ fn decode_signals(input: &[u8]) -> Result<Vec<[u8; 32]>, VerificationError> {
 /// Deserialise the verification key from our compact binary format.
 ///
 /// Binary layout (all fields contiguous, big-endian 32-byte words):
-/// ```
+/// ```text
 /// [32] num_ic (uint256 little-endian length prefix)
 /// [64] alpha1 (G1: x, y)
 /// [128] beta2 (G2: x.c0, x.c1, y.c0, y.c1)
