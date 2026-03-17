@@ -1,0 +1,41 @@
+# Compiled output
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/dry-run/
+
+# Rust build artifacts
+pvm-verifier/target/
+
+# Node / frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Circuit build artifacts
+circuits/build/
+
+# Environment files
+.env
+.env.local
+frontend/.env.local
+
+# Keys (never commit real proving/verification keys)
+!pvm-verifier/keys/voting_vk_placeholder.bin
+pvm-verifier/keys/*.zkey
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test artifacts
+proof_output.json
