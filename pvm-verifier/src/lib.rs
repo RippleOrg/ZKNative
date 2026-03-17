@@ -30,6 +30,10 @@ pub use verifier::verify_groth16_proof;
 /// of at least 32 bytes.
 #[cfg(feature = "pvm")]
 #[no_mangle]
-pub extern "C" fn pvm_verify(input_ptr: *const u8, input_len: usize, output_ptr: *mut u8) -> usize {
+pub unsafe extern "C" fn pvm_verify(
+    input_ptr: *const u8,
+    input_len: usize,
+    output_ptr: *mut u8,
+) -> usize {
     ffi::handle_pvm_call(input_ptr, input_len, output_ptr)
 }

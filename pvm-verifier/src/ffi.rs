@@ -8,7 +8,7 @@
 //! ```
 //!
 //! ABI layout (all values big-endian 32-byte words):
-//! ```
+//! ```text
 //! [0x000] proof.a[0]                          (G1 x)
 //! [0x020] proof.a[1]                          (G1 y)
 //! [0x040] proof.b[0][0]                       (G2 x.c0)
@@ -40,15 +40,17 @@ static VOTING_VK: &[u8] = include_bytes!("../keys/voting_vk_placeholder.bin");
 /// # Safety
 /// The host guarantees that the pointed-to memory regions are valid for their
 /// respective sizes.
-pub fn handle_pvm_call(input_ptr: *const u8, input_len: usize, output_ptr: *mut u8) -> usize {
-    let input = unsafe { core::slice::from_raw_parts(input_ptr, input_len) };
+pub unsafe fn handle_pvm_call(
+    input_ptr: *const u8,
+    input_len: usize,
+    output_ptr: *mut u8,
+) -> usize {
+    let input = core::slice::from_raw_parts(input_ptr, input_len);
 
     let result = decode_and_verify(input).unwrap_or(false);
 
     let output = encode_bool(result);
-    unsafe {
-        core::ptr::copy_nonoverlapping(output.as_ptr(), output_ptr, 32);
-    }
+    core::ptr::copy_nonoverlapping(output.as_ptr(), output_ptr, 32);
     32
 }
 
@@ -112,7 +114,7 @@ fn decode_signals(input: &[u8]) -> Result<Vec<[u8; 32]>, VerificationError> {
 /// Deserialise the verification key from our compact binary format.
 ///
 /// Binary layout (all fields contiguous, big-endian 32-byte words):
-/// ```
+/// ```text
 /// [32] num_ic (uint256 little-endian length prefix)
 /// [64] alpha1 (G1: x, y)
 /// [128] beta2 (G2: x.c0, x.c1, y.c0, y.c1)
@@ -135,7 +137,10 @@ fn decode_vk(data: &[u8]) -> Result<VerificationKey, VerificationError> {
 
     let mut offset = 32;
 
-    let alpha1 = G1Point { x: read32(data, offset)?, y: read32(data, offset + 32)? };
+    let alpha1 = G1Point {
+        x: read32(data, offset)?,
+        y: read32(data, offset + 32)?,
+    };
     offset += 64;
 
     let beta2 = G2Point {
@@ -158,11 +163,20 @@ fn decode_vk(data: &[u8]) -> Result<VerificationKey, VerificationError> {
 
     let mut ic = Vec::with_capacity(num_ic);
     for _ in 0..num_ic {
-        ic.push(G1Point { x: read32(data, offset)?, y: read32(data, offset + 32)? });
+        ic.push(G1Point {
+            x: read32(data, offset)?,
+            y: read32(data, offset + 32)?,
+        });
         offset += 64;
     }
 
-    Ok(VerificationKey { alpha1, beta2, gamma2, delta2, ic })
+    Ok(VerificationKey {
+        alpha1,
+        beta2,
+        gamma2,
+        delta2,
+        ic,
+    })
 }
 
 // ─── Encoding ─────────────────────────────────────────────────────────────────

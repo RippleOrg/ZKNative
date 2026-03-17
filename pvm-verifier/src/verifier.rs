@@ -31,8 +31,7 @@ pub fn verify_groth16_proof(
     };
 
     // 2. Parse public inputs as Fr field elements
-    let public_inputs: Result<Vec<Fr>, _> =
-        public_signals.iter().map(bytes_to_fr).collect();
+    let public_inputs: Result<Vec<Fr>, _> = public_signals.iter().map(bytes_to_fr).collect();
     let public_inputs = public_inputs.map_err(|_| VerificationError::InvalidScalar)?;
 
     // 3. Build the arkworks VerifyingKey
@@ -48,9 +47,6 @@ pub fn verify_groth16_proof(
 
 /// Convert our `VerificationKey` to an arkworks `VerifyingKey<Bn254>`.
 fn build_ark_vk(vk: &VerificationKey) -> Result<VerifyingKey<Bn254>, VerificationError> {
-    use ark_bn254::G1Projective;
-    use ark_ec::CurveGroup;
-
     let alpha_g1 = vk.alpha1.to_ark()?;
     let beta_g2 = vk.beta2.to_ark()?;
     let gamma_g2 = vk.gamma2.to_ark()?;

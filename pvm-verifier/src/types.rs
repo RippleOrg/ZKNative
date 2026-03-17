@@ -2,7 +2,7 @@
 
 use alloc::vec::Vec;
 use ark_bn254::{Fq, Fq2, G1Affine, G2Affine};
-use ark_ff::{BigInteger, Field, PrimeField, Zero};
+use ark_ff::{BigInteger, PrimeField, Zero};
 
 // ─── Point types ─────────────────────────────────────────────────────────────
 
@@ -94,7 +94,6 @@ impl G1Point {
 
     /// Serialise back to big-endian 32-byte arrays (for testing round-trips).
     pub fn from_ark(p: &G1Affine) -> Self {
-        use ark_serialize::CanonicalSerialize;
         let mut x_bytes = [0u8; 32];
         let mut y_bytes = [0u8; 32];
         let x_be = p.x.into_bigint().to_bytes_be();
@@ -103,7 +102,10 @@ impl G1Point {
         let ylen = y_be.len().min(32);
         x_bytes[32 - xlen..].copy_from_slice(&x_be[..xlen]);
         y_bytes[32 - ylen..].copy_from_slice(&y_be[..ylen]);
-        G1Point { x: x_bytes, y: y_bytes }
+        G1Point {
+            x: x_bytes,
+            y: y_bytes,
+        }
     }
 }
 

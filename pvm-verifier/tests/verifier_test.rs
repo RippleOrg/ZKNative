@@ -103,9 +103,19 @@ fn test_wrong_signal_count_error() {
 
 #[test]
 fn test_zero_proof_returns_false_or_error() {
-    let zero_g1 = G1Point { x: [0u8; 32], y: [0u8; 32] };
-    let zero_g2 = G2Point { x: [[0u8; 32]; 2], y: [[0u8; 32]; 2] };
-    let proof = Proof { a: zero_g1.clone(), b: zero_g2, c: zero_g1 };
+    let zero_g1 = G1Point {
+        x: [0u8; 32],
+        y: [0u8; 32],
+    };
+    let zero_g2 = G2Point {
+        x: [[0u8; 32]; 2],
+        y: [[0u8; 32]; 2],
+    };
+    let proof = Proof {
+        a: zero_g1.clone(),
+        b: zero_g2,
+        c: zero_g1,
+    };
     let signals = vec![[0u8; 32]; 4];
     let vk = test_vk();
 

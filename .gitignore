@@ -10,6 +10,7 @@ pvm-verifier/target/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+frontend/tsconfig.tsbuildinfo
 
 # Circuit build artifacts
 circuits/build/
