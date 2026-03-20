@@ -1,15 +1,52 @@
 // Contract addresses and ABIs
 
+export interface PrivateVotingProposal {
+  id: bigint;
+  title: string;
+  description: string;
+  startTime: bigint;
+  endTime: bigint;
+  votesFor: bigint;
+  votesAgainst: bigint;
+  votesAbstain: bigint;
+  finalized: boolean;
+  passed: boolean;
+}
+
+const DEPLOYED_ADDRESSES = {
+  ZKNativeVerifier: '0x79a8979b0ed0F57CD840e2BBC3CA7071E37913d0',
+  PrivateVoting: '0x4eA0e6Bc7e76ed28CF39381e58fBC6193f5a8b43',
+  ZKNToken: '0xA1D135E125e1C1B5713478266E18d85d66273a48',
+} as const;
+
 export const CONTRACT_ADDRESSES = {
   ZKNativeVerifier: (process.env.NEXT_PUBLIC_ZKNATIVE_VERIFIER_ADDRESS ??
-    '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    DEPLOYED_ADDRESSES.ZKNativeVerifier) as `0x${string}`,
   PrivateVoting: (process.env.NEXT_PUBLIC_PRIVATE_VOTING_ADDRESS ??
-    '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    DEPLOYED_ADDRESSES.PrivateVoting) as `0x${string}`,
   ZKNToken: (process.env.NEXT_PUBLIC_ZKN_TOKEN_ADDRESS ??
-    '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    DEPLOYED_ADDRESSES.ZKNToken) as `0x${string}`,
 };
 
+export const HAS_CONFIGURED_CONTRACTS = Object.values(CONTRACT_ADDRESSES).every(
+  (address) => address !== '0x0000000000000000000000000000000000000000'
+);
+
 export const PRIVATE_VOTING_ABI = [
+  {
+    type: 'function',
+    name: 'proposalCount',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'merkleRoot',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ name: '', type: 'bytes32' }],
+  },
   {
     type: 'function',
     name: 'castVote',
@@ -40,6 +77,23 @@ export const PRIVATE_VOTING_ABI = [
       { name: 'endTime', type: 'uint256' },
     ],
     outputs: [{ name: 'proposalId', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'finalizeProposal',
+    stateMutability: 'nonpayable',
+    inputs: [{ name: 'proposalId', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'hasVoted',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'proposalId', type: 'uint256' },
+      { name: 'nullifier', type: 'bytes32' },
+    ],
+    outputs: [{ name: '', type: 'bool' }],
   },
   {
     type: 'function',

@@ -91,7 +91,7 @@ export default function BenchmarkPage() {
           </tbody>
         </table>
         <p className="text-xs text-gray-500 mt-4">
-          * Measured on Polkadot Hub Westend Testnet. Gas costs are approximate and depend on proof
+          * Measured on Polkadot Hub Testnet. Gas costs are approximate and depend on proof
           complexity. The PVM Rust verifier uses arkworks on BN254; Solidity uses EIP-197 precompiles.
         </p>
       </div>

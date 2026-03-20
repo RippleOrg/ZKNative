@@ -8,6 +8,7 @@ export interface ZKProof {
 
 export interface ProofInputs {
   secret: bigint;
+  nullifier: bigint;
   voterAddress: bigint;
   pathElements: bigint[];
   pathIndices: number[];
@@ -39,6 +40,7 @@ export async function generateVotingProof(
 
   const circuitInputs = {
     merkleRoot: inputs.merkleRoot.toString(),
+    nullifier: inputs.nullifier.toString(),
     proposalId: inputs.proposalId.toString(),
     voteChoice: inputs.voteChoice.toString(),
     secret: inputs.secret.toString(),

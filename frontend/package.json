@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node ../scripts/sync-frontend-assets.mjs",
+    "prebuild": "node ../scripts/sync-frontend-assets.mjs",
+    "prestart": "node ../scripts/sync-frontend-assets.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "next build --no-lint --experimental-build-mode compile"
   },
   "dependencies": {
     "next": "14.2.3",

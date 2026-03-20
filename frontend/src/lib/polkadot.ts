@@ -1,8 +1,11 @@
-// Polkadot Hub chain configuration
+import type { Chain } from 'viem';
 
-export const POLKADOT_HUB_WESTEND = {
-  id: 420420421,
-  name: 'Polkadot Hub Westend',
+const RPC_URL =
+  process.env.NEXT_PUBLIC_RPC_URL ?? 'https://services.polkadothub-rpc.com/testnet';
+
+export const POLKADOT_HUB_TESTNET = {
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? '420420417'),
+  name: 'Polkadot Hub Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Westend',
@@ -10,13 +13,10 @@ export const POLKADOT_HUB_WESTEND = {
   },
   rpcUrls: {
     default: {
-      http: [
-        process.env.NEXT_PUBLIC_RPC_URL ??
-          'https://westend-asset-hub-eth-rpc.polkadot.io',
-      ],
+      http: [RPC_URL],
     },
     public: {
-      http: ['https://westend-asset-hub-eth-rpc.polkadot.io'],
+      http: [RPC_URL],
     },
   },
   blockExplorers: {
@@ -25,4 +25,8 @@ export const POLKADOT_HUB_WESTEND = {
       url: 'https://westend-asset-hub.blockscout.com',
     },
   },
-};
+  testnet: true,
+} as const satisfies Chain;
+
+export const POLKADOT_HUB_EXPLORER_URL =
+  POLKADOT_HUB_TESTNET.blockExplorers.default.url;
