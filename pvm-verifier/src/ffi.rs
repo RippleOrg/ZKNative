@@ -28,9 +28,9 @@ use alloc::vec::Vec;
 use crate::types::{read32, G1Point, G2Point, Proof, VerificationError, VerificationKey};
 use crate::verifier::verify_groth16_proof;
 
-/// Embedded verification key (generated from trusted setup ceremony).
-/// Replace the placeholder binary with the output of `snarkjs zkey export verificationkey`
-/// piped through the `export-vk-bin` tool in `scripts/`.
+/// Embedded verification key generated from the current voting circuit build.
+/// Re-run `circuits/compile.sh` and `scripts/export-vk-bin.js` whenever the
+/// circuit changes.
 static VOTING_VK: &[u8] = include_bytes!("../keys/voting_vk_placeholder.bin");
 
 // ─── Entry point ─────────────────────────────────────────────────────────────

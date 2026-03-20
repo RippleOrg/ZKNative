@@ -10,6 +10,7 @@ import * as snarkjs from 'snarkjs';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { buildPoseidon } from 'circomlibjs';
 
 const BUILD_DIR = path.join(__dirname, '..', 'circuits', 'build');
 const WASM_PATH = path.join(BUILD_DIR, 'voting_eligibility_js', 'voting_eligibility.wasm');
@@ -22,6 +23,10 @@ const MERKLE_DEPTH = 20;
 
 function randomBigInt(): bigint {
   return BigInt('0x' + crypto.randomBytes(31).toString('hex'));
+}
+
+function toPoseidonBigInt(poseidon: any, value: any): bigint {
+  return BigInt(poseidon.F.toString(value));
 }
 
 function mockMerklePath(): { pathElements: string[]; pathIndices: number[] } {
@@ -54,11 +59,23 @@ async function main() {
   const voterAddress = randomBigInt(); // In production, derive from connected wallet
   const { pathElements, pathIndices } = mockMerklePath();
 
-  // Compute the Merkle root from the path (placeholder — real root from contract)
-  const merkleRoot = randomBigInt();
+  const poseidon = await buildPoseidon();
+  let current = toPoseidonBigInt(poseidon, poseidon([secret, voterAddress]));
+
+  for (let i = 0; i < MERKLE_DEPTH; i++) {
+    const sibling = BigInt(pathElements[i]);
+    const isRight = pathIndices[i] === 1;
+    const left = isRight ? sibling : current;
+    const right = isRight ? current : sibling;
+    current = toPoseidonBigInt(poseidon, poseidon([left, right]));
+  }
+
+  const merkleRoot = current;
+  const nullifier = toPoseidonBigInt(poseidon, poseidon([secret, proposalId]));
 
   const input = {
     merkleRoot: merkleRoot.toString(),
+    nullifier: nullifier.toString(),
     proposalId: proposalId.toString(),
     voteChoice: voteChoice.toString(),
     secret: secret.toString(),

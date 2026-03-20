@@ -6,15 +6,21 @@
   "scripts": {
     "setup": "bash scripts/setup.sh",
     "compile-circuits": "bash scripts/compile-circuits.sh",
-    "generate-proof": "npx ts-node scripts/generate-proof.ts",
-    "benchmark": "npx ts-node scripts/benchmark.ts",
+    "generate-proof": "npx ts-node --files scripts/generate-proof.ts",
+    "benchmark": "npx ts-node --files scripts/benchmark.ts",
     "test:contracts": "cd contracts && forge test -vvv",
     "test:rust": "cd pvm-verifier && cargo test",
     "dev:frontend": "cd frontend && npm run dev"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
+    "@types/node": "^20.14.2",
     "ts-node": "^10.9.2",
-    "@types/node": "^20.14.2"
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "snarkjs": "^0.7.6",
+    "viem": "^2.47.5"
   }
 }

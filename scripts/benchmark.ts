@@ -8,19 +8,35 @@
  * Usage: PRIVATE_KEY=0x... VERIFIER_ADDRESS=0x... npx ts-node scripts/benchmark.ts
  */
 
-import { createPublicClient, createWalletClient, http, parseAbi, encodeFunctionData } from 'viem';
+import { createPublicClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { POLKADOT_HUB_WESTEND } from '../frontend/src/lib/polkadot';
+import { POLKADOT_HUB_TESTNET } from '../frontend/src/lib/polkadot';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const VERIFIER_ADDRESS = (process.env.VERIFIER_ADDRESS ?? '0x0000000000000000000000000000000000000000') as `0x${string}`;
 const PRIVATE_KEY = (process.env.PRIVATE_KEY ?? '') as `0x${string}`;
+const RPC_URL = process.env.POLKADOT_HUB_RPC ?? POLKADOT_HUB_TESTNET.rpcUrls.default.http[0];
+const CHAIN_ID = Number(process.env.CHAIN_ID ?? '420420417');
 
-const VERIFIER_ABI = parseAbi([
-  'function verifyAndRecord(tuple(uint256[2] a, uint256[2][2] b, uint256[2] c) proof, uint256[] publicSignals) returns (bool)',
-  'function lastVerificationGas() view returns (uint256)',
-  'function switchBackend(bool usePVM)',
-  'function usePVMBackend() view returns (bool)',
-]);
+const TARGET_CHAIN = {
+  ...POLKADOT_HUB_TESTNET,
+  id: CHAIN_ID,
+  rpcUrls: {
+    default: { http: [RPC_URL] },
+    public: { http: [RPC_URL] },
+  },
+};
+
+const ARTIFACT_PATH = path.join(
+  __dirname,
+  '..',
+  'contracts',
+  'out',
+  'ZKNativeVerifier.sol',
+  'ZKNativeVerifier.json'
+);
+const VERIFIER_ABI = JSON.parse(fs.readFileSync(ARTIFACT_PATH, 'utf8')).abi;
 
 // BN254 G1 generator (structural — will not pass pairing; used for gas benchmarking)
 const STRUCTURAL_PROOF = {
@@ -43,14 +59,14 @@ async function main() {
   }
 
   const account = privateKeyToAccount(PRIVATE_KEY);
-  const publicClient = createPublicClient({
-    chain: POLKADOT_HUB_WESTEND as any,
-    transport: http(),
+  const publicClient: any = createPublicClient({
+    chain: TARGET_CHAIN as any,
+    transport: http(RPC_URL),
   });
-  const walletClient = createWalletClient({
+  const walletClient: any = createWalletClient({
     account,
-    chain: POLKADOT_HUB_WESTEND as any,
-    transport: http(),
+    chain: TARGET_CHAIN as any,
+    transport: http(RPC_URL),
   });
 
   console.log('=== ZKNative Gas Benchmark ===');
@@ -71,29 +87,36 @@ async function main() {
     const backendName = usePVM ? 'PVM Rust' : 'Solidity';
     console.log(`\nTesting ${backendName} backend...`);
 
-    const hash = await walletClient.writeContract({
-      address: VERIFIER_ADDRESS,
-      abi: VERIFIER_ABI,
-      functionName: 'verifyAndRecord',
-      args: [STRUCTURAL_PROOF, PUBLIC_SIGNALS],
-    });
+    try {
+      const hash = await walletClient.writeContract({
+        address: VERIFIER_ADDRESS,
+        abi: VERIFIER_ABI,
+        functionName: 'verifyAndRecord',
+        args: [STRUCTURAL_PROOF, PUBLIC_SIGNALS],
+      });
 
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    const gasUsed = await publicClient.readContract({
-      address: VERIFIER_ADDRESS,
-      abi: VERIFIER_ABI,
-      functionName: 'lastVerificationGas',
-    });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      const gasUsed = (await publicClient.readContract({
+        address: VERIFIER_ADDRESS,
+        abi: VERIFIER_ABI,
+        functionName: 'lastVerificationGas',
+      })) as bigint;
 
-    console.log(`  tx gas: ${receipt.gasUsed.toLocaleString()}`);
-    console.log(`  verification gas: ${gasUsed.toLocaleString()}`);
-    results.push({ backend: backendName, gasUsed });
+      console.log(`  tx gas: ${receipt.gasUsed.toLocaleString()}`);
+      console.log(`  verification gas: ${gasUsed.toLocaleString()}`);
+      results.push({ backend: backendName, gasUsed });
+    } catch (err: any) {
+      console.log(`  failed: ${err?.shortMessage ?? err?.message ?? String(err)}`);
+    }
   }
 
-  if (results.length === 2) {
-    const [pvm, sol] = results;
+  const pvm = results.find((r) => r.backend === 'PVM Rust');
+  const sol = results.find((r) => r.backend === 'Solidity');
+  if (pvm && sol) {
     const speedup = Number(sol.gasUsed) / Number(pvm.gasUsed);
     console.log(`\nSpeedup: ${speedup.toFixed(2)}× (PVM Rust vs Solidity)`);
+  } else {
+    console.log('\nSpeedup unavailable: one backend did not complete successfully.');
   }
 }
 
