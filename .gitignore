@@ -12,8 +12,6 @@ frontend/.next/
 frontend/out/
 frontend/tsconfig.tsbuildinfo
 frontend/.vercel/
-frontend/public/circuits/
-frontend/public/deployments/
 
 # Circuit build artifacts
 circuits/build/

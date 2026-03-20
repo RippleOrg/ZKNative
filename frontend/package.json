@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node ../scripts/sync-frontend-assets.mjs",
-    "prebuild": "node ../scripts/sync-frontend-assets.mjs",
-    "prestart": "node ../scripts/sync-frontend-assets.mjs",
+    "predev": "node ./scripts/ensure-assets.mjs",
+    "prebuild": "node ./scripts/ensure-assets.mjs",
+    "prestart": "node ./scripts/ensure-assets.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
