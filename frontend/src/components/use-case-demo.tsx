@@ -137,25 +137,25 @@ export function UseCaseDemo({
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="mb-10">
+      <div className="mb-8 sm:mb-10">
         <Link href={backHref} className="text-sm text-polkadot-pink hover:text-white transition-colors">
           ← {backLabel}
         </Link>
 
         <div className="mt-4 grid gap-6 lg:grid-cols-[1.25fr_0.95fr]">
           <div>
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-5xl">{config.icon}</span>
+            <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <span className="text-4xl sm:text-5xl">{config.icon}</span>
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">{config.eyebrow}</p>
-                <h1 className="text-4xl font-bold">{config.title}</h1>
+                <h1 className="text-3xl font-bold sm:text-4xl">{config.title}</h1>
               </div>
             </div>
-            <p className="text-lg text-gray-300 mb-4">{config.description}</p>
+            <p className="mb-4 text-base text-gray-300 sm:text-lg">{config.description}</p>
             <p className="text-sm text-gray-400">{config.privacyPromise}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             {config.metrics.map((metric) => (
               <div
                 key={metric.label}
@@ -180,10 +180,10 @@ export function UseCaseDemo({
                     complete={stepOrder.indexOf(step) > index}
                     index={index + 1}
                   />
-                  {index < stepOrder.length - 1 && <div className="w-8 h-px bg-polkadot-black mx-2" />}
+                  {index < stepOrder.length - 1 && <div className="mx-1 h-px w-4 bg-polkadot-black sm:mx-2 sm:w-8" />}
                 </div>
               ))}
-              <span className="ml-2 text-sm text-gray-400 capitalize">{step}</span>
+              <span className="w-full pt-1 text-sm capitalize text-gray-400 sm:ml-2 sm:w-auto sm:pt-0">{step}</span>
             </div>
 
             {step === 'connect' && (
@@ -235,7 +235,7 @@ export function UseCaseDemo({
                             : 'border-polkadot-black/50 hover:border-polkadot-pink'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                           <span className="font-semibold">{scenario.label}</span>
                           <span className="text-xs text-gray-500">{config.contextLabel}: {scenario.contextValue}</span>
                         </div>
@@ -276,7 +276,7 @@ export function UseCaseDemo({
 
                 {proofStatus === 'ready' && (
                   <div className="mt-4 rounded-xl border border-green-700 bg-green-900/30 p-4">
-                    <div className="flex items-center justify-between gap-4 mb-3">
+                    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="font-semibold text-green-400">Proof ready for submission</p>
                       <span className="text-xs text-green-300">{signalPreview.proofTimeLabel}</span>
                     </div>
@@ -344,7 +344,7 @@ export function UseCaseDemo({
 
             {step === 'done' && (
               <div className="text-center">
-                <div className="text-5xl mb-4">✅</div>
+                <div className="mb-4 text-4xl sm:text-5xl">✅</div>
                 <h2 className="text-2xl font-bold mb-3">{config.successTitle}</h2>
                 <p className="text-gray-400 text-sm mb-5">{config.successDescription}</p>
                 {txHash && (
@@ -397,7 +397,7 @@ export function UseCaseDemo({
 
           <div className="bg-polkadot-gray rounded-xl p-6 border border-polkadot-gray">
             <h3 className="font-semibold mb-4">Execution Path</h3>
-            <div className="font-mono text-sm text-gray-300 space-y-2">
+            <div className="space-y-2 break-words font-mono text-xs text-gray-300 sm:text-sm">
               <div>Frontend builds witness + proof in browser</div>
               <div className="pl-4">↓ {config.contractCall.split('(')[0]}</div>
               <div>Consumer contract validates context + nullifier</div>

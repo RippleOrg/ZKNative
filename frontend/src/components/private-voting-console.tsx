@@ -135,6 +135,7 @@ export function PrivateVotingConsole() {
   const {
     account,
     connect,
+    error: walletError,
     getWalletClient,
     isConnected,
     isConnecting,
@@ -324,11 +325,11 @@ export function PrivateVotingConsole() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
         <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Live Private Voting</p>
         <div className="mt-3 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
-            <h1 className="text-4xl font-bold">Generate a real Groth16 vote proof and submit it on-chain</h1>
+            <h1 className="text-3xl font-bold sm:text-4xl">Generate a real Groth16 vote proof and submit it on-chain</h1>
             <p className="mt-4 max-w-3xl text-gray-300">
               This flow now reads the deployed contracts on Polkadot Hub testnet, generates a
               browser-side proof with the bundled circuit artifacts, and submits the proof to the
@@ -373,7 +374,7 @@ export function PrivateVotingConsole() {
       {selectedProposal && proposalSummary(selectedProposal)}
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+        <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
           <h2 className="text-xl font-semibold">Proof Inputs</h2>
           <p className="mt-2 text-sm text-gray-400">
             Paste the Merkle proof bundle issued for your allowlisted identity. The address stays
@@ -494,14 +495,14 @@ export function PrivateVotingConsole() {
             <button
               onClick={() => void handleGenerateProof()}
               disabled={isGenerating || !selectedProposal}
-              className="rounded-lg bg-polkadot-pink px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink-dark disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-polkadot-pink px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink-dark disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {isGenerating ? 'Generating proof...' : 'Generate Live Proof'}
             </button>
             <button
               onClick={() => void handleSubmitVote()}
               disabled={isSubmitting || !generatedProof || alreadyVoted === true}
-              className="rounded-lg border border-polkadot-gray px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-polkadot-pink disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg border border-polkadot-gray px-5 py-3 text-sm font-semibold text-white transition-colors hover:border-polkadot-pink disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {isConnecting
                 ? 'Connecting wallet...'
@@ -523,6 +524,12 @@ export function PrivateVotingConsole() {
             </div>
           )}
 
+          {!submitError && walletError && (
+            <div className="mt-4 rounded-lg border border-amber-700 bg-amber-900/20 p-4 text-sm text-amber-200">
+              {walletError}
+            </div>
+          )}
+
           {txHash && (
             <div className="mt-4 rounded-lg border border-green-700 bg-green-900/20 p-4 text-sm text-green-200">
               Vote submitted successfully.{' '}
@@ -539,7 +546,7 @@ export function PrivateVotingConsole() {
         </section>
 
         <section className="space-y-4">
-          <div className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+          <div className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
             <h2 className="text-xl font-semibold">Execution Readiness</h2>
             <div className="mt-4 space-y-3 text-sm text-gray-300">
               <div className="rounded-lg bg-polkadot-black/40 p-4">
@@ -581,7 +588,7 @@ export function PrivateVotingConsole() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+          <div className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
             <h2 className="text-xl font-semibold">Operator Notes</h2>
             <div className="mt-4 space-y-3 text-sm text-gray-300">
               <p className="rounded-lg bg-polkadot-black/40 p-4">

@@ -8,8 +8,8 @@ export default function UseCasesPage() {
     <div className="max-w-6xl mx-auto">
       <section className="mb-12">
         <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3">Three Live ZKNative Flows</p>
-        <h1 className="text-4xl font-bold mb-4">Beyond one use case, the verifier already supports a pattern library</h1>
-        <p className="text-lg text-gray-300 max-w-4xl">
+        <h1 className="mb-4 text-3xl font-bold sm:text-4xl">Beyond one use case, the verifier already supports a pattern library</h1>
+        <p className="max-w-4xl text-base text-gray-300 sm:text-lg">
           ZKNative is not limited to private voting. Any consumer contract that needs
           membership proofs, nullifiers, and context-bound execution can reuse the same
           native Rust verifier path on Polkadot Hub.
@@ -44,7 +44,7 @@ export default function UseCasesPage() {
       <section className="bg-polkadot-gray rounded-xl p-6 mb-12">
         <h2 className="text-2xl font-bold mb-4">Use Case Matrix</h2>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="min-w-[760px] w-full text-sm">
             <thead>
               <tr className="border-b border-polkadot-black text-gray-400">
                 <th className="text-left py-3 pr-4">Use Case</th>
@@ -74,7 +74,7 @@ export default function UseCasesPage() {
 
       <section className="bg-polkadot-gray rounded-xl p-6">
         <h2 className="text-2xl font-bold mb-4">Shared ZKNative Pattern</h2>
-        <div className="font-mono text-sm text-gray-300 space-y-2">
+        <div className="space-y-2 break-words font-mono text-xs text-gray-300 sm:text-sm">
           <div>Frontend generates Groth16 proof in browser</div>
           <div className="pl-4">↓ contract.execute(contextId, proof, publicSignals)</div>
           <div>Consumer contract enforces root, nullifier, and business logic</div>

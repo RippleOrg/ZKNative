@@ -293,8 +293,8 @@ function StudioCard({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="bg-polkadot-gray rounded-xl border border-polkadot-gray p-6">
-      <div className="flex items-center justify-between gap-4 mb-4">
+    <div className="bg-polkadot-gray rounded-xl border border-polkadot-gray p-4 sm:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold">{title}</h3>
         {action}
       </div>
@@ -488,8 +488,8 @@ export function UseCaseStudio() {
     <div className="max-w-7xl mx-auto">
       <section className="mb-12">
         <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3">Developer Studio</p>
-        <h1 className="text-4xl font-bold mb-4">Design your own ZKNative use case</h1>
-        <p className="text-lg text-gray-300 max-w-4xl mb-6">
+        <h1 className="mb-4 text-3xl font-bold sm:text-4xl">Design your own ZKNative use case</h1>
+        <p className="mb-6 max-w-4xl text-base text-gray-300 sm:text-lg">
           Configure a custom privacy-preserving app, preview the full flow, and export the config,
           route, and contract checklist needed to integrate it into ZKNative.
         </p>
@@ -516,7 +516,7 @@ export function UseCaseStudio() {
       <section className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] mb-12">
         <div className="space-y-6">
           <StudioCard title="Core Identity">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Icon">
                 <TextInput value={draft.icon} onChange={(value) => updateDraftField('icon', value)} placeholder="🧪" />
               </Field>
@@ -562,7 +562,7 @@ export function UseCaseStudio() {
           </StudioCard>
 
           <StudioCard title="Signal Labels & Outcomes">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Scenario Label">
                 <TextInput value={draft.scenarioLabel} onChange={(value) => updateDraftField('scenarioLabel', value)} placeholder="Campaign" />
               </Field>
@@ -614,7 +614,7 @@ export function UseCaseStudio() {
                   <TextInput value={metric.value} onChange={(value) => updateMetric(index, 'value', value)} placeholder="Metric value" />
                   <button
                     onClick={() => removeMetric(index)}
-                    className="rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 hover:border-polkadot-pink hover:text-white transition-colors"
+                    className="w-full rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 transition-colors hover:border-polkadot-pink hover:text-white md:w-auto"
                   >
                     Remove
                   </button>
@@ -637,7 +637,7 @@ export function UseCaseStudio() {
             <div className="space-y-4">
               {draft.scenarios.map((scenario, index) => (
                 <div key={`${scenario.id}-${index}`} className="rounded-xl border border-polkadot-black/50 bg-polkadot-black/30 p-4">
-                  <div className="grid gap-3 md:grid-cols-2">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <Field label="Scenario ID">
                       <TextInput value={scenario.id} onChange={(value) => updateScenario(index, 'id', slugify(value))} placeholder="season-1" />
                     </Field>
@@ -650,7 +650,7 @@ export function UseCaseStudio() {
                     <div className="flex items-end">
                       <button
                         onClick={() => removeScenario(index)}
-                        className="rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 hover:border-polkadot-pink hover:text-white transition-colors"
+                        className="w-full rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 transition-colors hover:border-polkadot-pink hover:text-white sm:w-auto"
                       >
                         Remove Scenario
                       </button>
@@ -693,7 +693,7 @@ export function UseCaseStudio() {
                     <div className="flex items-end">
                       <button
                         onClick={() => removeAction(index)}
-                        className="rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 hover:border-polkadot-pink hover:text-white transition-colors"
+                        className="w-full rounded-lg border border-polkadot-black/50 px-3 py-2 text-sm text-gray-400 transition-colors hover:border-polkadot-pink hover:text-white md:w-auto"
                       >
                         Remove Action
                       </button>
@@ -710,7 +710,7 @@ export function UseCaseStudio() {
           </StudioCard>
 
           <StudioCard title="Proof Checklist & Technical Notes">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Proof Checklist" hint="One line per item">
                 <TextArea value={draft.proofChecklistText} onChange={(value) => updateDraftField('proofChecklistText', value)} rows={6} />
               </Field>
@@ -729,11 +729,11 @@ export function UseCaseStudio() {
           <StudioCard title="Export JSON">
             <button
               onClick={() => copyText('json', JSON.stringify(previewConfig, null, 2))}
-              className="mb-4 rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white hover:bg-polkadot-pink/10 transition-colors"
+              className="mb-4 w-full rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink/10 sm:w-auto"
             >
               {copiedKey === 'json' ? 'Copied JSON' : 'Copy JSON'}
             </button>
-            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-4 text-xs text-gray-300">
+            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-3 text-[11px] text-gray-300 sm:p-4 sm:text-xs">
               {JSON.stringify(previewConfig, null, 2)}
             </pre>
           </StudioCard>
@@ -741,11 +741,11 @@ export function UseCaseStudio() {
           <StudioCard title="Export TypeScript">
             <button
               onClick={() => copyText('config', configSnippet)}
-              className="mb-4 rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white hover:bg-polkadot-pink/10 transition-colors"
+              className="mb-4 w-full rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink/10 sm:w-auto"
             >
               {copiedKey === 'config' ? 'Copied Config Snippet' : 'Copy Config Snippet'}
             </button>
-            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-4 text-xs text-gray-300">
+            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-3 text-[11px] text-gray-300 sm:p-4 sm:text-xs">
               {configSnippet}
             </pre>
           </StudioCard>
@@ -753,11 +753,11 @@ export function UseCaseStudio() {
           <StudioCard title="Export Route File">
             <button
               onClick={() => copyText('route', routeSnippet)}
-              className="mb-4 rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white hover:bg-polkadot-pink/10 transition-colors"
+              className="mb-4 w-full rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink/10 sm:w-auto"
             >
               {copiedKey === 'route' ? 'Copied Route Snippet' : 'Copy Route Snippet'}
             </button>
-            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-4 text-xs text-gray-300">
+            <pre className="overflow-x-auto rounded-xl bg-polkadot-black/40 p-3 text-[11px] text-gray-300 sm:p-4 sm:text-xs">
               {routeSnippet}
             </pre>
           </StudioCard>
@@ -765,11 +765,11 @@ export function UseCaseStudio() {
           <StudioCard title="Integration Guide">
             <button
               onClick={() => copyText('guide', contractGuide)}
-              className="mb-4 rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white hover:bg-polkadot-pink/10 transition-colors"
+              className="mb-4 w-full rounded-lg border border-polkadot-pink px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink/10 sm:w-auto"
             >
               {copiedKey === 'guide' ? 'Copied Guide' : 'Copy Guide'}
             </button>
-            <pre className="overflow-x-auto whitespace-pre-wrap rounded-xl bg-polkadot-black/40 p-4 text-xs text-gray-300">
+            <pre className="overflow-x-auto whitespace-pre-wrap rounded-xl bg-polkadot-black/40 p-3 text-[11px] text-gray-300 sm:p-4 sm:text-xs">
               {contractGuide}
             </pre>
           </StudioCard>
@@ -780,7 +780,7 @@ export function UseCaseStudio() {
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">Live Preview</p>
-            <h2 className="text-3xl font-bold">Run the full custom flow before you export it</h2>
+            <h2 className="text-2xl font-bold sm:text-3xl">Run the full custom flow before you export it</h2>
           </div>
           {/* <p className="text-sm text-gray-400 max-w-xl">
             This preview stays in demo mode, but it uses the same interactive component as the built-in ZKNative use cases.

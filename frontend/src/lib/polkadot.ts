@@ -8,8 +8,8 @@ export const POLKADOT_HUB_TESTNET = {
   name: 'Polkadot Hub Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'Westend',
-    symbol: 'WND',
+    name: 'Polkadot Hub Native Token',
+    symbol: 'PAS',
   },
   rpcUrls: {
     default: {
@@ -22,7 +22,7 @@ export const POLKADOT_HUB_TESTNET = {
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://westend-asset-hub.blockscout.com',
+      url: 'https://blockscout-testnet.polkadot.io/',
     },
   },
   testnet: true,

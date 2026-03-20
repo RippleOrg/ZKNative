@@ -37,6 +37,7 @@ export function ProposalDashboard() {
   const { error, isLoading, proposalCount, proposals, refresh } = usePrivateVotingData();
   const {
     connect,
+    error: walletError,
     getWalletClient,
     isConnected,
     isConnecting,
@@ -142,11 +143,11 @@ export function ProposalDashboard() {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
         <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Live Governance State</p>
         <div className="mt-3 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <div>
-            <h1 className="text-4xl font-bold">Proposal results are now backed by the deployed contract</h1>
+            <h1 className="text-3xl font-bold sm:text-4xl">Proposal results are now backed by the deployed contract</h1>
             <p className="mt-4 max-w-3xl text-gray-300">
               This page reads the current `proposalCount`, proposal structs, and aggregate vote
               tallies directly from the `PrivateVoting` deployment instead of using hard-coded demo
@@ -171,7 +172,7 @@ export function ProposalDashboard() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6">
+      <section className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-semibold">Create Proposal</h2>
@@ -222,7 +223,7 @@ export function ProposalDashboard() {
           <button
             type="submit"
             disabled={pendingAction === 'create'}
-            className="rounded-lg bg-polkadot-pink px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink-dark disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-polkadot-pink px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-polkadot-pink-dark disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {pendingAction === 'create' ? 'Creating proposal...' : 'Create Proposal'}
           </button>
@@ -231,6 +232,12 @@ export function ProposalDashboard() {
         {actionError && (
           <div className="mt-4 rounded-lg border border-amber-700 bg-amber-900/20 p-4 text-sm text-amber-200">
             {actionError}
+          </div>
+        )}
+
+        {!actionError && walletError && (
+          <div className="mt-4 rounded-lg border border-amber-700 bg-amber-900/20 p-4 text-sm text-amber-200">
+            {walletError}
           </div>
         )}
 
@@ -295,7 +302,7 @@ export function ProposalDashboard() {
               return (
                 <article
                   key={proposal.id.toString()}
-                  className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-6"
+                  className="rounded-2xl border border-polkadot-gray bg-polkadot-gray/40 p-4 sm:p-6"
                 >
                   <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
                     <div>
