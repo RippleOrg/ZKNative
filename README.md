@@ -1,73 +1,131 @@
 # ZKNative
 
-> **The first ZK proof verifier running in native Rust on a blockchain, callable from Solidity via PolkaVM.**
+> Native Rust Groth16 verification for Solidity on Polkadot Hub, shipped with a live private-voting app.
 
 [![CI](https://github.com/RippleOrg/ZKNative/actions/workflows/ci.yml/badge.svg)](https://github.com/RippleOrg/ZKNative/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
+## Overview
 
-## What is ZKNative?
+ZKNative demonstrates the part of Polkadot’s PVM that other EVM-compatible environments do not expose: a Solidity contract can delegate heavy proof verification work to native Rust through PolkaVM FFI.
 
-ZKNative demonstrates the most powerful feature of Polkadot's PVM (PolkaVM): calling a **native Rust ZK proof verifier** directly from a **Solidity smart contract** via PVM's cross-language FFI.
+This repository now includes:
 
-**Application layer:** A private on-chain voting system where voters prove eligibility using a Groth16 ZK proof — without revealing their address or token balance. The proof is verified on-chain by an **arkworks Rust library** compiled to PolkaVM, called from Solidity at precompile address `0x0900`.
+- A live, chain-backed private voting console
+- A live proposal dashboard with create and finalize actions
+- Browser-side Groth16 proof generation using synced circuit assets
+- A Rust verifier for PolkaVM plus a Solidity fallback verifier
+- Checked-in trusted setup artifacts for the current voting circuit
 
-**No other EVM-compatible chain can do this.**
+The current application focus is private governance: a voter proves eligibility against a Merkle root, commits to a proposal and vote choice, and submits a nullifier-protected ballot without revealing the qualifying wallet on-chain.
 
----
+## Why This Is Polkadot-Native
 
-## Why Only Possible on Polkadot
-
-| Feature | Ethereum | Solana | **Polkadot Hub** |
+| Feature | Ethereum | Solana | Polkadot Hub |
 |---|:---:|:---:|:---:|
-| Call Rust libs from Solidity | ❌ | ❌ | ✅ |
-| Native ZK verification in Rust | ❌ | ⚠️ BPF only | ✅ |
-| EVM-compatible + Rust FFI | ❌ | ❌ | ✅ |
-| Cross-parachain XCM voting | ❌ | ❌ | ✅ |
+| Solidity can call native Rust | ❌ | ❌ | ✅ |
+| User-deployed Rust verifier path | ❌ | ⚠️ | ✅ |
+| EVM app + native verifier in one flow | ❌ | ❌ | ✅ |
+| Reusable verifier for multiple privacy apps | ⚠️ | ⚠️ | ✅ |
 
-Polkadot's PVM is the first VM that allows Solidity contracts to call native Rust (or C++) libraries at near-native speed. Traditional EVM chains are limited to what the EVM can express natively — ZK precompiles must be hard-coded at the protocol level and cannot be user-deployed. With PVM, **any Rust library** becomes a callable precompile.
+With PolkaVM, the verifier logic does not need to be permanently embedded as a protocol precompile. The app contract stays in Solidity, while the heavy cryptography can live in Rust.
 
----
+## Live Deployment
 
-## Live Demo
+- Frontend: `https://zknative.vercel.app`
+- Explorer: `https://westend-asset-hub.blockscout.com`
+- Chain: Polkadot Hub Testnet
+- Chain ID: `420420417`
+- PVM verifier entrypoint: `0x0000000000000000000000000000000000000900`
 
-| Resource | Link |
+### Public Testnet Addresses
+
+These addresses come from [`contracts/broadcast/addresses.json`](contracts/broadcast/addresses.json).
+
+| Contract | Address |
 |---|---|
-| 🌐 Frontend | https://zknative.vercel.app |
-| 📹 Demo Video | https://zknative.vercel.app/demo |
-| 🔍 Testnet Explorer | https://westend-asset-hub.blockscout.com |
+| ZKNToken | `0xA1D135E125e1C1B5713478266E18d85d66273a48` |
+| TimelockController | `0x7c0b03Db2a95bd3352788e236bc8cc1e8fD449A5` |
+| VotingGovernor | `0xf7E7080A077ae14eCf13389DC1Fa068aD87e6B76` |
+| ZKNativeVerifier | `0x79a8979b0ed0F57CD840e2BBC3CA7071E37913d0` |
+| PrivateVoting | `0x4eA0e6Bc7e76ed28CF39381e58fBC6193f5a8b43` |
 
----
+### Deployment Note
+
+The repo now contains refreshed verifier constants generated from the checked-in circuit artifacts. If you want the public testnet deployment to match the latest contract source byte-for-byte, redeploy from the current repo state.
+
+## What The App Does Today
+
+### Live Private Voting
+
+- Reads proposal data and the live Merkle root from the deployed `PrivateVoting` contract
+- Generates Groth16 proofs in the browser using `snarkjs`
+- Checks nullifier reuse before submission
+- Submits private votes to the deployed contract through a connected EVM wallet
+
+### Live Governance Console
+
+- Reads `proposalCount` and proposal structs directly from chain
+- Shows real aggregate tallies instead of hard-coded demo data
+- Allows authorized operators to create new proposals
+- Allows ended proposals to be finalized on-chain
+
+### Production-Ready Frontend Plumbing
+
+- Circuit assets are synced into `frontend/public/circuits` automatically during `npm run dev` and `npm run build`
+- Deployment metadata is synced into `frontend/public/deployments`
+- The app now ships with a usable `frontend/.env.example`
+
+### Important Operator Requirement
+
+To cast a valid private vote, a voter still needs a correct eligibility bundle:
+
+- `secret`
+- `nullifier`
+- `pathElements[20]`
+- `pathIndices[20]`
+- The eligible address used in the Merkle leaf
+
+Those values must match the current on-chain Merkle root.
 
 ## Architecture
 
-```
+```text
 Frontend (Next.js)
-  └─ snarkjs (WASM) → generates Groth16 proof in browser
+  └─ snarkjs + synced WASM/zkey assets
        ↓ castVote(proof, publicSignals)
-PrivateVoting.sol (OZ AccessControl + ReentrancyGuard)
-  └─ validates public signals, calls verifier
-       ↓ verifyProof(proof, signals)
-ZKNativeVerifier.sol (OZ AccessControl + Pausable)
-  └─ dispatches to PVM precompile (usePVMBackend=true)
-       ↓ staticcall(0x0000...0900, abi.encode(proof, signals))
-PVM Rust Verifier (arkworks Groth16 on BN254)
-  └─ native speed, no EVM gas overhead for pairing
+PrivateVoting.sol
+  └─ validates proposal window, Merkle root, nullifier, and vote choice
+       ↓ verifyProof(proof, publicSignals)
+ZKNativeVerifier.sol
+  └─ dispatches to PVM native verifier or Solidity fallback
+       ↓ staticcall(0x...0900, abi.encode(...))
+PVM Rust verifier
+  └─ arkworks Groth16 verification on BN254
 ```
 
----
+## Benchmarks
 
-## Quick Start (Local)
+Current benchmark target for Groth16 verification with 4 public signals:
+
+| Backend | Gas Used | Relative Cost |
+|---|---:|---:|
+| PVM Rust on Polkadot | `~180,000` | `1x` |
+| Solidity verifier on EVM | `~1,850,000` | `~10.3x` |
+| Solidity verifier on Polkadot Hub | `~1,820,000` | `~10.1x` |
+
+The practical point of the project is not just “ZK works on-chain”; it is “ZK verification can be moved into native Rust while keeping the application interface in Solidity”.
+
+## Quick Start
 
 ### Prerequisites
 
-- [Foundry](https://getfoundry.sh) — Solidity testing framework
-- [Rust + Cargo](https://rustup.rs) — for the PVM verifier
-- [Node.js 20+](https://nodejs.org) — for frontend and scripts
-- [circom + snarkjs](https://docs.circom.io) — for ZK circuit compilation (optional for local tests)
+- [Foundry](https://getfoundry.sh)
+- [Rust](https://rustup.rs)
+- Node.js 20+
+- `circom` and `snarkjs` for circuit recompilation
 
-### Clone and Setup
+### Install
 
 ```bash
 git clone https://github.com/RippleOrg/ZKNative.git
@@ -75,102 +133,109 @@ cd ZKNative
 bash scripts/setup.sh
 ```
 
-### Compile ZK Circuits (optional — required for proof generation)
+### Rebuild The Circuit Artifacts
 
 ```bash
 bash scripts/compile-circuits.sh
 ```
 
-### Deploy Contracts (local Anvil)
+This updates:
 
-```bash
-cd contracts
-anvil &
-forge script script/Deploy.s.sol --rpc-url http://localhost:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast
-```
+- `circuits/build/`
+- `contracts/src/GeneratedVerifier.sol`
+- `pvm-verifier/keys/voting_vk_placeholder.bin`
 
-### Run Frontend
+### Run The Frontend
 
 ```bash
 cp frontend/.env.example frontend/.env.local
-# Edit .env.local with deployed contract addresses
 cd frontend
 npm run dev
-# Open http://localhost:3000
 ```
 
----
+The frontend automatically copies the latest proving assets into `frontend/public/circuits` before dev and production builds.
 
-## Contract Addresses
+### Deploy Contracts Locally
 
-### Polkadot Hub Westend Testnet (Chain ID: 420420421)
+```bash
+cd contracts
+anvil
+forge script script/Deploy.s.sol \
+  --rpc-url http://127.0.0.1:8545 \
+  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
+  --broadcast
+```
 
-| Contract | Address |
-|---|---|
-| ZKNToken | TBD — deploy with `forge script` |
-| TimelockController | TBD |
-| VotingGovernor | TBD |
-| ZKNativeVerifier | TBD |
-| PrivateVoting | TBD |
+### Generate A Sample Proof Locally
 
----
+```bash
+npm run generate-proof -- 1 1
+```
 
-## Benchmark Results
+## Verification Status
 
-Groth16 verification gas comparison (BN254, 4 public signals):
+The current repo state was checked with:
 
-| Backend | Gas Used | Speedup |
-|---|---|---|
-| **PVM Rust (Polkadot)** | ~180,000 | 10.3× |
-| Solidity EVM (Ethereum) | ~1,850,000 | 1× (baseline) |
-| Solidity (Polkadot Hub) | ~1,820,000 | ~1× |
+- `npm run --prefix frontend lint`
+- `npm run --prefix frontend type-check`
+- `npm run --prefix frontend build`
+- `npm run test:rust`
+- `cd contracts && forge build`
 
-The native Rust verifier (via PVM FFI) uses ~**10× less gas** than the equivalent Solidity implementation using EIP-197 precompiles.
+### Known Environment Issue
 
----
-
-## Hackathon Track Eligibility
-
-- **Track:** Track 2 — PVM Smart Contracts
-- **Category:** PVM-experiments — "Call Rust or C++ libraries from Solidity"
-- **OpenZeppelin bounty:** Qualifies for the OZ AccessControl governance layer bounty
-  - `ZKNativeVerifier` uses `AccessControl` with `VERIFIER_ADMIN_ROLE` and `PROOF_SUBMITTER_ROLE`
-  - `PrivateVoting` uses `AccessControl` with `PROPOSAL_CREATOR_ROLE` and `VOTING_ADMIN_ROLE`
-  - `VotingGovernor` is a full OZ Governor deployment with timelock
-
----
+`forge test` currently crashes in this macOS environment because of an upstream Foundry/system proxy bug inside `system-configuration` rather than a Solidity compile failure. The contracts do compile successfully with `forge build`.
 
 ## Project Structure
 
-```
-zknative/
-├── contracts/          Foundry project: Solidity contracts + tests
-│   ├── src/            ZKNativeVerifier, PrivateVoting, VotingGovernor
-│   ├── test/           Foundry test suite (9+ tests)
-│   └── script/         Deploy + Verify scripts
-├── pvm-verifier/       Rust crate: Groth16 verifier compiled to PVM
-│   └── src/            lib.rs, types.rs, verifier.rs, ffi.rs
-├── circuits/           circom ZK circuit (voting_eligibility.circom)
-├── frontend/           Next.js + TypeScript + Tailwind UI
-├── scripts/            Setup, compile, benchmark scripts
-└── docs/               Architecture, deployment, and PVM FFI guide
+```text
+contracts/       Solidity contracts, tests, scripts, broadcast metadata
+circuits/        circom circuit, proving assets, verification key output
+pvm-verifier/    Rust verifier compiled for the PVM path
+frontend/        Next.js application with live vote and results pages
+scripts/         setup, benchmarking, proof generation, asset sync
+docs/            architecture, deployment notes, roadmap
 ```
 
----
+## Project Vision
+
+ZKNative is meant to become a reusable privacy and high-performance verification layer for Polkadot applications.
+
+The voting app is the first product surface, but the larger idea is broader:
+
+- Let Solidity teams keep their app logic and tooling
+- Let Rust handle cryptography-heavy or performance-sensitive verification work
+- Make privacy-preserving UX normal for governance, claims, credentials, and gated access
+- Turn PolkaVM FFI into a general pattern for bringing native libraries into smart-contract apps
 
 ## Roadmap
 
-See [docs/roadmap.md](docs/roadmap.md) for the full roadmap.
+### Near Term
 
----
+- Ship Merkle tree generation and eligibility bundle tooling
+- Add a first-class operator flow for allowlist management
+- Redeploy the public verifier stack from the latest source state
+- Add richer transaction and proof diagnostics in the UI
+
+### Mid Term
+
+- Cross-parachain voting and eligibility sources
+- Additional privacy app templates beyond governance
+- PLONK or universal-setup variants
+
+### Long Term
+
+- Generalize `ZKNativeVerifier` for arbitrary circuit families
+- Publish SDK tooling for Rust-backed verifier deployment on Polkadot
+- Expand from voting into a broader ZK co-processor and privacy infrastructure layer
+
+See [docs/roadmap.md](docs/roadmap.md) for the evolving roadmap.
 
 ## Community
 
-- **OpenGuild Discord:** https://discord.gg/WWgzkDfPQF
-- **Polkadot Developer Support:** https://t.me/substratedevs
-
----
+- OpenGuild Discord: `https://discord.gg/WWgzkDfPQF`
+- Polkadot developer support: `https://t.me/substratedevs`
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT

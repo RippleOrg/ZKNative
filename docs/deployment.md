@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - Foundry installed (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-- A funded wallet on Polkadot Hub Westend Testnet
-- RPC endpoint for Polkadot Hub Westend: `https://westend-asset-hub-eth-rpc.polkadot.io`
+- A funded wallet on Polkadot Hub Testnet
+- RPC endpoint for Polkadot Hub Testnet: `https://services.polkadothub-rpc.com/testnet`
 
 ## Local Deployment (Anvil)
 
@@ -30,7 +30,7 @@ forge script script/Deploy.s.sol \
 ```bash
 # Set environment variables
 export PRIVATE_KEY=<your-deployer-private-key>
-export POLKADOT_HUB_RPC=https://westend-asset-hub-eth-rpc.polkadot.io
+export POLKADOT_HUB_RPC=https://services.polkadothub-rpc.com/testnet
 export ETHERSCAN_API_KEY=<blockscout-api-key>
 export BLOCKSCOUT_URL=https://westend-asset-hub.blockscout.com/api
 
@@ -59,7 +59,7 @@ forge script script/Deploy.s.sol \
 forge verify-contract \
   <VERIFIER_ADDRESS> \
   contracts/src/ZKNativeVerifier.sol:ZKNativeVerifier \
-  --chain-id 420420421 \
+  --chain-id 420420417 \
   --etherscan-api-key $ETHERSCAN_API_KEY \
   --constructor-args $(cast abi-encode "constructor(address)" <ADMIN_ADDRESS>)
 ```

@@ -13,11 +13,13 @@
 
 ## v0.2 — Production Hardening (post-hackathon)
 
-- [ ] Trusted setup ceremony for the voting circuit (Hermez/Perpetual Powers of Tau)
-- [ ] Replace placeholder VK constants with ceremony output
-- [ ] Multi-proposal support in the frontend
+- [x] Trusted setup artifacts checked into the repo for the current voting circuit
+- [x] Replace placeholder VK constants with ceremony output
+- [x] Multi-proposal support in the frontend
+- [x] Live proposal dashboard backed by deployed contracts
+- [x] Browser proof asset sync for production builds
 - [ ] Merkle tree generation script (batch eligible-voter onboarding)
-- [ ] Full snarkjs proof generation integrated in frontend
+- [x] Full snarkjs proof generation integrated in frontend
 - [ ] PLONK circuit variant (universal setup, no ceremony required)
 
 ## v0.3 — Cross-Parachain Voting (XCM)
